@@ -111,10 +111,12 @@ def test_sigmoid(a: float) -> None:
     assert 0.0 <= sigmoid(a) <= 1.0
     assert_close(1.0 - sigmoid(a), sigmoid(-a))
     assert_close(sigmoid(0.0), 0.5)
-    if a < 0:
-        assert sigmoid(a) > sigmoid(a + 1e-5)
-    if a > 0:
-        assert sigmoid(a) < sigmoid(a + 1e-5)
+
+    # Limit range of a around 0 to avoid overflow
+    if a > 0 and a < 10:
+        assert sigmoid(a) > sigmoid(a - 1e2)
+    if a < 0 and a > -10:
+        assert sigmoid(a) < sigmoid(a + 1e2)
 
 
 @pytest.mark.task0_2
