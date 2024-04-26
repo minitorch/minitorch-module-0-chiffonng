@@ -81,6 +81,7 @@ def test_max(a: float) -> None:
     assert max(a, a - 1.0) == a
     assert max(a + 1.0, a) == a + 1.0
     assert max(a, a + 1.0) == a + 1.0
+    assert max(a, a) == a  # Idempotent
 
 
 @pytest.mark.task0_1
@@ -105,47 +106,79 @@ def test_sigmoid(a: float) -> None:
     * It is always between 0.0 and 1.0.
     * one minus sigmoid is the same as sigmoid of the negative
     * It crosses 0 at 0.5
-    * It is  strictly increasing.
+    * It is strictly increasing.
     """
-    # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    assert 0.0 <= sigmoid(a) <= 1.0
+    assert_close(1.0 - sigmoid(a), sigmoid(-a))
+    assert_close(sigmoid(0.0), 0.5)
+    if a < 0:
+        assert sigmoid(a) > sigmoid(a + 1e-5)
+    if a > 0:
+        assert sigmoid(a) < sigmoid(a + 1e-5)
 
 
 @pytest.mark.task0_2
 @given(small_floats, small_floats, small_floats)
 def test_transitive(a: float, b: float, c: float) -> None:
     "Test the transitive property of less-than (a < b and b < c implies a < c)"
-    # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    if a < b and b < c:
+        assert a < c
 
 
 @pytest.mark.task0_2
-def test_symmetric() -> None:
+@given(small_floats, small_floats)
+def test_symmetric(a: float, b: float) -> None:
     """
     Write a test that ensures that :func:`minitorch.operators.mul` is symmetric, i.e.
     gives the same value regardless of the order of its input.
+
+    Additionally, see if add and max are symmetric/commutative.
     """
-    # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    assert_close(mul(a, b), mul(b, a))
+    assert_close(max(a, b), max(b, a))
+    assert_close(add(a, b), add(b, a))
 
 
 @pytest.mark.task0_2
-def test_distribute() -> None:
+@given(small_floats, small_floats, small_floats)
+def test_distribute(x: float, y: float, z: float) -> None:
     r"""
     Write a test that ensures that your operators distribute, i.e.
     :math:`z \times (x + y) = z \times x + z \times y`
     """
-    # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    assert_close(mul(z, add(x, y)), add(mul(z, x), mul(z, y)))
 
 
 @pytest.mark.task0_2
-def test_other() -> None:
+@given(small_floats, small_floats, small_floats)
+def test_associative(x: float, y: float, z: float) -> None:
+    r"""
+    Test to ensure that add & mul operators are associative, i.e.
+    :math:`x + (y + z) = (x + y) + z`
+    :math:`x \times (y \times z) = (x \times y) \times z`
     """
-    Write a test that ensures some other property holds for your functions.
+    assert_close(add(x, add(y, z)), add(add(x, y), z))
+    assert_close(mul(x, mul(y, z)), mul(mul(x, y), z))
+
+
+@pytest.mark.task0_2
+@given(small_floats)
+def test_zero(x: float) -> None:
     """
-    # TODO: Implement for Task 0.2.
-    raise NotImplementedError("Need to implement for Task 0.2")
+    Test to ensure zero is the identity element for addition and the annihilator for multiplication.
+    """
+    assert_close(add(x, 0.0), x)
+    assert_close(mul(x, 0.0), 0.0)
+
+
+@pytest.mark.task0_2
+@given(small_floats)
+def test_inverse(x: float) -> None:
+    """
+    Test to ensure that the inverse of a number is the same as the reciprocal.
+    """
+    if abs(x) > 1e-5:  # to avoid division by zero
+        assert_close(mul(x, inv(x)), 1.0)
 
 
 # ## Task 0.3  - Higher-order functions
