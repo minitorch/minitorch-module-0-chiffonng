@@ -63,7 +63,7 @@ class Module:
             # Add the descendant modules of the current module to the stack
             stack.extend(module.modules())
 
-    def named_parameters(self) -> Sequence[Tuple[str, Parameter]]:
+    def named_parameters(self) -> List[Tuple[str, Parameter]]:
         """
         Collect all the parameters of this module and its descendants.
         Implemntation: Iterative, preorder traversal of the module tree.
@@ -105,10 +105,10 @@ class Module:
 
         return named_params  # Return the list of named parameters
 
-    def parameters(self) -> Sequence[Parameter]:
+    def parameters(self) -> List[Parameter]:
         "Enumerate over all the parameters of this module and its descendents."
-        params = []  # Initialize a list to store parameters
-        stack = [self]  # Initialize a stack with the root module
+        params: List[Parameter] = []
+        stack: List[Module] = [self]  # Initialize a stack with the root module
 
         while stack:  # While there are modules to explore
             current_module = stack.pop()
